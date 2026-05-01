@@ -23,20 +23,11 @@ if (!isConfigValid) {
   );
 }
 
-let app;
-let auth;
-let db;
-let storage;
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
 const googleProvider = new GoogleAuthProvider();
-
-try {
-  app = initializeApp(firebaseConfig);
-  auth = getAuth(app);
-  db = getFirestore(app);
-  storage = getStorage(app);
-} catch (error) {
-  console.error('Firebase initialization failed:', error);
-}
 
 export { auth, db, storage, googleProvider };
 

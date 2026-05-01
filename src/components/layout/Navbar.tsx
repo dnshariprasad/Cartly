@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Menu, Moon, Sun, User, LogOut, ChevronDown, Plus, Settings as SettingsIcon } from 'lucide-react';
+import { Moon, Sun, LogOut, Plus, Settings as SettingsIcon, ShoppingBag, MoreVertical } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '../../store';
-import { toggleSidebar, toggleTheme, setCreateModalOpen } from '../../store/slices/uiSlice';
+import { toggleTheme, setCreateModalOpen } from '../../store/slices/uiSlice';
 import { auth } from '../../services/firebase';
 import { signOut } from 'firebase/auth';
 
@@ -13,13 +13,27 @@ const NavContainer = styled.nav`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1.5rem;
+  padding: 0 1rem;
   background-color: ${({ theme }) => theme.colors.surface};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   position: sticky;
   top: 0;
   z-index: 100;
   transition: background-color 0.3s ease;
+`;
+
+const NavInner = styled.div`
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    padding: 0 1rem;
+  }
 `;
 
 const LeftSection = styled.div`
@@ -60,16 +74,6 @@ const UserProfile = styled.div`
 
   &:hover {
     background-color: ${({ theme }) => theme.colors.background};
-  }
-`;
-
-const UserName = styled.span`
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.text};
-  
-  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
-    display: none;
   }
 `;
 
@@ -140,6 +144,7 @@ const LogoutButton = styled.button`
 
 const Navbar: React.FC = () => {
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
+  const [moreMenuOpen, setMoreMenuOpen] = React.useState(false);
   const dispatch = useDispatch();
   const themeMode = useSelector((state: RootState) => state.ui.theme);
   const user = useSelector((state: RootState) => state.auth.user);
@@ -154,48 +159,93 @@ const Navbar: React.FC = () => {
 
   return (
     <NavContainer>
-      <LeftSection>
-        <IconButton onClick={() => dispatch(toggleSidebar())}>
-          <Menu size={20} />
-        </IconButton>
-      </LeftSection>
+      <NavInner>
+        <LeftSection>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
+            <div style={{ 
+              background: 'linear-gradient(135deg, #6366f1, #a855f7)', 
+              width: '32px', 
+              height: '32px', 
+              borderRadius: '8px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              color: 'white',
+              flexShrink: 0
+            }}>
+              <ShoppingBag size={18} fill="white" />
+            </div>
+            <h1 style={{ 
+              fontSize: '1.4rem', 
+              fontWeight: 800, 
+              color: 'inherit', 
+              letterSpacing: '-0.5px',
+              margin: 0,
+              lineHeight: 1
+            }}>Cartly</h1>
+          </Link>
+        </LeftSection>
 
-      <RightSection>
-        <IconButton onClick={() => dispatch(setCreateModalOpen(true))} style={{ backgroundColor: '#6366f115', color: '#6366f1' }}>
-          <Plus size={20} />
-        </IconButton>
-        
-        <IconButton onClick={() => dispatch(toggleTheme())}>
-          {themeMode === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-        </IconButton>
-        
-        <div style={{ position: 'relative' }}>
-          <UserProfile onClick={() => setDropdownOpen(!dropdownOpen)}>
-            <Avatar>
-              {user?.photoURL ? (
-                <img src={user.photoURL} alt="User" />
-              ) : (
-                <User size={18} />
-              )}
-            </Avatar>
-            <UserName>{user?.displayName || user?.email?.split('@')[0]}</UserName>
-            <ChevronDown size={14} style={{ color: '#94a3b8' }} />
-          </UserProfile>
+        <RightSection>
+          <IconButton onClick={() => dispatch(setCreateModalOpen(true))} style={{ backgroundColor: '#6366f115', color: '#6366f1' }}>
+            <Plus size={20} />
+          </IconButton>
+          
+          <div style={{ position: 'relative' }}>
+            <IconButton onClick={() => setMoreMenuOpen(!moreMenuOpen)}>
+              <MoreVertical size={20} />
+            </IconButton>
 
-          {dropdownOpen && (
-            <Dropdown onMouseLeave={() => setDropdownOpen(false)}>
-              <DropdownItem to="/settings" onClick={() => setDropdownOpen(false)}>
-                <SettingsIcon size={16} />
-                Settings
-              </DropdownItem>
-              <LogoutButton onClick={handleLogout}>
-                <LogOut size={16} />
-                Log Out
-              </LogoutButton>
-            </Dropdown>
-          )}
-        </div>
-      </RightSection>
+            {moreMenuOpen && (
+              <Dropdown onMouseLeave={() => setMoreMenuOpen(false)}>
+                <div style={{ 
+                  padding: '0.75rem 1rem', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '0.75rem', 
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  color: 'inherit',
+                  borderBottom: '1px solid rgba(0,0,0,0.05)'
+                }} onClick={() => dispatch(toggleTheme())}>
+                  {themeMode === 'light' ? <Moon size={16} /> : <Sun size={16} />}
+                  <span>{themeMode === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
+                </div>
+                <DropdownItem to="/settings" onClick={() => setMoreMenuOpen(false)}>
+                  <SettingsIcon size={16} />
+                  Settings
+                </DropdownItem>
+              </Dropdown>
+            )}
+          </div>
+
+          <div style={{ position: 'relative' }}>
+            <UserProfile onClick={() => setDropdownOpen(!dropdownOpen)}>
+              <Avatar style={{ borderRadius: '50%', background: '#6366f1', width: '36px', height: '36px', fontWeight: 700, border: '2px solid white', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                {(user?.displayName || user?.email || 'U')[0].toUpperCase()}
+              </Avatar>
+            </UserProfile>
+
+            {dropdownOpen && (
+              <Dropdown onMouseLeave={() => setDropdownOpen(false)}>
+                <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid #f1f5f9' }}>
+                  <div style={{ fontWeight: 700, fontSize: '0.875rem', color: '#1e293b' }}>{user?.displayName || 'User'}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '2px' }}>{user?.email}</div>
+                </div>
+                <DropdownItem to="/settings" onClick={() => setDropdownOpen(false)}>
+                  <SettingsIcon size={16} />
+                  Settings
+                </DropdownItem>
+                <LogoutButton onClick={handleLogout}>
+                  <LogOut size={16} />
+                  Log Out
+                </LogoutButton>
+              </Dropdown>
+            )}
+          </div>
+        </RightSection>
+      </NavInner>
     </NavContainer>
   );
 };

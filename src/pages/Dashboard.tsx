@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Plus, List as ListIcon, Calendar, CheckCircle, AlertCircle, Search as SearchIcon } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { useLists } from '../hooks/useLists';
 import ListCard from '../components/lists/ListCard';
@@ -9,108 +9,13 @@ import { setCreateModalOpen } from '../store/slices/uiSlice';
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
-`;
-
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const Title = styled.h2`
-  font-size: 2.25rem;
-  font-weight: 800;
-  color: ${({ theme }) => theme.colors.text};
-  letter-spacing: -1px;
-`;
-
-const StatsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1.5rem;
-`;
-
-const StatCard = styled.div`
-  background-color: ${({ theme }) => theme.colors.surface};
-  padding: 1.5rem;
-  border-radius: 20px;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  box-shadow: ${({ theme }) => theme.colors.cardShadow};
-`;
-
-const IconWrapper = styled.div<{ $color: string }>`
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
-  background-color: ${({ $color }) => `${$color}15`};
-  color: ${({ $color }) => $color};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const StatInfo = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const StatValue = styled.span`
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: ${({ theme }) => theme.colors.text};
-  line-height: 1;
-`;
-
-const StatLabel = styled.span`
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: ${({ theme }) => theme.colors.textSecondary};
-  margin-top: 0.25rem;
-`;
-
-const SectionHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-`;
-
-const SectionTitle = styled.h3`
-  font-size: 1.375rem;
-  font-weight: 700;
-  color: ${({ theme }) => theme.colors.text};
 `;
 
 const ListGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1.75rem;
-`;
-
-const CreateCard = styled.button`
-  height: 100%;
-  min-height: 220px;
-  border: 2px dashed ${({ theme }) => theme.colors.border};
-  border-radius: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  color: ${({ theme }) => theme.colors.textSecondary};
-  transition: all 0.2s ease;
-  background: transparent;
-
-  &:hover {
-    border-color: ${({ theme }) => theme.colors.primary};
-    color: ${({ theme }) => theme.colors.primary};
-    background-color: ${({ theme }) => `${theme.colors.primary}05`};
-    transform: translateY(-4px);
-  }
 `;
 
 const LoadingGrid = styled.div`
@@ -164,9 +69,9 @@ const PrimaryButton = styled.button`
 `;
 
 const SearchContainer = styled.div`
-  margin-bottom: 2rem;
+  margin-bottom: 0;
   position: relative;
-  max-width: 500px;
+  width: 100%;
 `;
 
 const SearchInput = styled.input`
@@ -177,12 +82,10 @@ const SearchInput = styled.input`
   background-color: ${({ theme }) => theme.colors.surface};
   color: ${({ theme }) => theme.colors.text};
   font-size: 1rem;
-  box-shadow: ${({ theme }) => theme.colors.cardShadow};
   transition: all 0.2s ease;
 
   &:focus {
     border-color: ${({ theme }) => theme.colors.primary};
-    box-shadow: 0 0 0 4px ${({ theme }) => `${theme.colors.primary}15`};
     outline: none;
   }
 `;
@@ -201,7 +104,7 @@ const SearchIconWrapper = styled.div`
 const Dashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = React.useState('');
   const dispatch = useDispatch();
-  const { lists, loading, error } = useLists();
+  const { lists, loading } = useLists();
 
   const filteredLists = lists.filter(list => 
     list.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -212,18 +115,15 @@ const Dashboard: React.FC = () => {
     document.title = 'Cartly | Dashboard';
   }, []);
 
-  const totalItems = lists.reduce((acc, list) => acc + (list.itemCount || 0), 0);
-  const totalCompleted = lists.reduce((acc, list) => acc + (list.completedCount || 0), 0);
-  const totalPending = totalItems - totalCompleted;
 
   return (
     <Container>
 
 
       <div>
-        <SearchContainer>
+        <SearchContainer style={{ marginBottom: 0 }}>
           <SearchIconWrapper>
-            <SearchIcon size={20} />
+            <Search size={20} />
           </SearchIconWrapper>
           <SearchInput 
             placeholder="Search your lists..." 
@@ -231,6 +131,7 @@ const Dashboard: React.FC = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </SearchContainer>
+      </div>
 
         {loading ? (
           <LoadingGrid>
@@ -263,7 +164,6 @@ const Dashboard: React.FC = () => {
             )}
           </EmptyState>
         )}
-      </div>
     </Container>
   );
 };

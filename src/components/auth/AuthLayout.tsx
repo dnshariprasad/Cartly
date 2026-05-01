@@ -58,11 +58,10 @@ const Subtitle = styled.p`
 
 interface AuthLayoutProps {
   children: React.ReactNode;
-  title: string;
   subtitle: string;
 }
 
-const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title, subtitle }) => {
+const AuthLayout: React.FC<AuthLayoutProps> = ({ children, subtitle }) => {
   return (
     <AuthContainer>
       <AuthCard>

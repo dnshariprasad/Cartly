@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { X, Check, Package, Tag, Hash, DollarSign } from 'lucide-react';
+import { X, Package, Tag, Hash, IndianRupee, Check } from 'lucide-react';
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -213,7 +213,7 @@ const AddItemModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) => {
             <FormGroup>
               <Label>Price (Optional)</Label>
               <InputWrapper>
-                <IconWrapper><DollarSign size={18} /></IconWrapper>
+                <IconWrapper><IndianRupee size={18} /></IconWrapper>
                 <Input 
                   type="number"
                   step="0.01"

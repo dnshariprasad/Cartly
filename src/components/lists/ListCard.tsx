@@ -1,26 +1,27 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Calendar, Home, Plane, Briefcase, ChevronRight, MoreVertical, Trash2, Edit2 } from 'lucide-react';
+import { ShoppingBag, Calendar, Home, Plane, Briefcase } from 'lucide-react';
 import type { List } from '../../types';
-import { useLists } from '../../hooks/useLists';
 import EditListModal from './EditListModal';
 
 const Card = styled(Link)`
   background-color: ${({ theme }) => theme.colors.surface};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: 20px;
-  padding: 1.5rem;
+  border-radius: 24px;
+  padding: 1.75rem;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-  transition: all 0.2s ease;
-  box-shadow: ${({ theme }) => theme.colors.cardShadow};
+  gap: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
   position: relative;
+  text-decoration: none;
 
   &:hover {
-    transform: translateY(-4px);
+    transform: translateY(-8px);
     border-color: ${({ theme }) => theme.colors.primary};
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   }
 `;
 
@@ -31,9 +32,9 @@ const CardHeader = styled.div`
 `;
 
 const IconWrapper = styled.div<{ $type: string }>`
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -57,47 +58,6 @@ const IconWrapper = styled.div<{ $type: string }>`
   }};
 `;
 
-const MoreButton = styled.button`
-  padding: 0.5rem;
-  border-radius: 8px;
-  color: ${({ theme }) => theme.colors.textSecondary};
-  transition: all 0.2s ease;
-  z-index: 10;
-
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.background};
-    color: ${({ theme }) => theme.colors.primary};
-  }
-`;
-
-const Menu = styled.div`
-  position: absolute;
-  top: 3.5rem;
-  right: 1.5rem;
-  background-color: ${({ theme }) => theme.colors.surface};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: 12px;
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  z-index: 20;
-`;
-
-const MenuItem = styled.button<{ $variant?: 'danger' }>`
-  padding: 0.75rem 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: ${({ theme, $variant }) => ($variant === 'danger' ? theme.colors.error : theme.colors.text)};
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: ${({ theme, $variant }) => ($variant === 'danger' ? `${theme.colors.error}10` : theme.colors.background)};
-  }
-`;
 
 const TitleSection = styled.div`
   display: flex;
@@ -106,47 +66,12 @@ const TitleSection = styled.div`
 `;
 
 const Title = styled.h4`
-  font-size: 1.125rem;
-  font-weight: 700;
+  font-size: 1.35rem;
+  font-weight: 800;
   color: ${({ theme }) => theme.colors.text};
+  letter-spacing: -0.5px;
 `;
 
-const TypeTag = styled.span`
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: ${({ theme }) => theme.colors.textSecondary};
-`;
-
-const ProgressSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-`;
-
-const ProgressLabel = styled.div`
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: ${({ theme }) => theme.colors.textSecondary};
-`;
-
-const ProgressBar = styled.div`
-  height: 6px;
-  background-color: ${({ theme }) => theme.colors.background};
-  border-radius: 3px;
-  overflow: hidden;
-`;
-
-const ProgressFill = styled.div<{ $percent: number }>`
-  height: 100%;
-  width: ${({ $percent }) => `${$percent}%`};
-  background-color: ${({ theme }) => theme.colors.primary};
-  border-radius: 3px;
-  transition: width 0.5s ease;
-`;
 
 const Footer = styled.div`
   display: flex;
@@ -157,23 +82,16 @@ const Footer = styled.div`
 `;
 
 const ItemCount = styled.span`
-  font-size: 0.8125rem;
-  color: ${({ theme }) => theme.colors.textSecondary};
-`;
-
-const ViewLink = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: ${({ theme }) => theme.colors.primary};
+  color: ${({ theme }) => theme.colors.textSecondary};
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 `;
 
 const ListCard: React.FC<{ list: List }> = ({ list }) => {
-  const [menuOpen, setMenuOpen] = React.useState(false);
-  const [editModalOpen, setEditModalOpen] = React.useState(false);
-  const { deleteList } = useLists();
+  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
 
   const getIcon = () => {
     switch (list.type) {
@@ -185,30 +103,6 @@ const ListCard: React.FC<{ list: List }> = ({ list }) => {
     }
   };
 
-  const handleMoreClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setMenuOpen(!menuOpen);
-  };
-
-  const handleEdit = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setEditModalOpen(true);
-    setMenuOpen(false);
-  };
-
-  const handleDelete = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (window.confirm('Are you sure you want to delete this list?')) {
-      try {
-        await deleteList(list.id);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-  };
 
   return (
     <>
@@ -218,23 +112,7 @@ const ListCard: React.FC<{ list: List }> = ({ list }) => {
           <IconWrapper $type={list.type}>
             {getIcon()}
           </IconWrapper>
-          <TypeTag>{list.type}</TypeTag>
         </div>
-        <MoreButton onClick={handleMoreClick}>
-          <MoreVertical size={20} />
-        </MoreButton>
-        {menuOpen && (
-          <Menu onClick={e => e.stopPropagation()}>
-            <MenuItem onClick={handleEdit}>
-              <Edit2 size={16} />
-              Edit List
-            </MenuItem>
-            <MenuItem $variant="danger" onClick={handleDelete}>
-              <Trash2 size={16} />
-              Delete List
-            </MenuItem>
-          </Menu>
-        )}
       </CardHeader>
 
       <TitleSection>
@@ -248,16 +126,12 @@ const ListCard: React.FC<{ list: List }> = ({ list }) => {
         <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
           {new Date(list.createdAt).toLocaleDateString()}
         </span>
-        <ViewLink>
-          <span>View Items</span>
-          <ChevronRight size={16} />
-        </ViewLink>
       </Footer>
       </Card>
       
       <EditListModal 
-        isOpen={editModalOpen} 
-        onClose={() => setEditModalOpen(false)} 
+        isOpen={isEditModalOpen} 
+        onClose={() => setIsEditModalOpen(false)} 
         list={list} 
       />
     </>

@@ -96,18 +96,6 @@ const TextArea = styled.textarea`
   }
 `;
 
-const Select = styled.select`
-  padding: 0.75rem 1rem;
-  border-radius: 10px;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  background-color: ${({ theme }) => theme.colors.background};
-  color: ${({ theme }) => theme.colors.text};
-  font-size: 1rem;
-
-  &:focus {
-    border-color: ${({ theme }) => theme.colors.primary};
-  }
-`;
 
 const ButtonGroup = styled.div`
   display: flex;
@@ -196,16 +184,7 @@ const CreateListModal: React.FC<Props> = ({ isOpen, onClose }) => {
               autoFocus
             />
           </FormGroup>
-          <FormGroup>
-            <Label>Type</Label>
-            <Select value={type} onChange={(e) => setType(e.target.value)}>
-              <option value="Home">Home</option>
-              <option value="Event">Event</option>
-              <option value="Travel">Travel</option>
-              <option value="Work">Work</option>
-              <option value="Custom">Custom</option>
-            </Select>
-          </FormGroup>
+
           <FormGroup>
             <Label>Description (Optional)</Label>
             <TextArea 

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { ChevronLeft, Plus, Filter, SortAsc, MoreVertical, Search, ShoppingCart, Trash2, Edit2 } from 'lucide-react';
+import { Plus, Search, Trash2, Edit2, ShoppingCart } from 'lucide-react';
 import { useItems } from '../hooks/useItems';
 import { useLists } from '../hooks/useLists';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../store';
 import ItemRow from '../components/lists/ItemRow';
 import AddItemModal from '../components/lists/AddItemModal';
 import EditItemModal from '../components/lists/EditItemModal';
@@ -15,82 +17,50 @@ import { db } from '../services/firebase';
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1rem;
 `;
 
 const Header = styled.div`
   display: flex;
-  align-items: center;
-  gap: 1.5rem;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
 `;
 
-const BackButton = styled.button`
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  background-color: ${({ theme }) => theme.colors.surface};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  color: ${({ theme }) => theme.colors.textSecondary};
-  transition: all 0.2s ease;
 
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.background};
-    color: ${({ theme }) => theme.colors.primary};
-    border-color: ${({ theme }) => theme.colors.primary};
-  }
-`;
-
-const TitleSection = styled.div`
-  flex: 1;
-`;
-
-const ListTitle = styled.h2`
-  font-size: 2rem;
+const PageTitle = styled.h2`
+  font-size: 1.5rem;
   font-weight: 800;
   color: ${({ theme }) => theme.colors.text};
-  letter-spacing: -0.5px;
-`;
-
-const ListMeta = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-top: 0.25rem;
-  font-size: 0.875rem;
-  color: ${({ theme }) => theme.colors.textSecondary};
-`;
-
-const Badge = styled.span<{ $color: string }>`
-  background-color: ${({ $color }) => `${$color}15`};
-  color: ${({ $color }) => $color};
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-weight: 600;
-  font-size: 0.75rem;
-  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1;
 `;
 
 const Toolbar = styled.div`
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: space-between;
   align-items: center;
-  padding: 1.25rem;
-  background-color: ${({ theme }) => theme.colors.surface};
-  border-radius: 20px;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  box-shadow: ${({ theme }) => theme.colors.cardShadow};
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 0.5rem 0;
+  position: sticky;
+  top: 64px;
+  background-color: ${({ theme }) => theme.colors.background};
+  z-index: 50;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    padding: 0.75rem 0;
+  }
 `;
 
 const SearchBox = styled.div`
   position: relative;
   flex: 1;
-  min-width: 200px;
-  max-width: 400px;
+  min-width: 0;
 `;
 
 const IconWrapper = styled.div`
@@ -109,19 +79,19 @@ const SearchInput = styled.input`
   padding: 0.75rem 1rem 0.75rem 2.75rem;
   border-radius: 12px;
   border: 1px solid ${({ theme }) => theme.colors.border};
-  background-color: ${({ theme }) => theme.colors.background};
+  background-color: ${({ theme }) => theme.colors.surface};
   color: ${({ theme }) => theme.colors.text};
   font-size: 0.9375rem;
+  transition: all 0.2s ease;
 
   &:focus {
     border-color: ${({ theme }) => theme.colors.primary};
+    background-color: ${({ theme }) => theme.colors.surface};
+    outline: none;
+    box-shadow: 0 0 0 3px ${({ theme }) => `${theme.colors.primary}10`};
   }
 `;
 
-const ActionGroup = styled.div`
-  display: flex;
-  gap: 0.75rem;
-`;
 
 const IconButton = styled.button`
   display: flex;
@@ -140,35 +110,6 @@ const IconButton = styled.button`
     background-color: ${({ theme }) => theme.colors.background};
     color: ${({ theme }) => theme.colors.primary};
     border-color: ${({ theme }) => theme.colors.primary};
-  }
-`;
-
-const Menu = styled.div`
-  position: absolute;
-  right: 2rem;
-  top: 5rem;
-  background-color: ${({ theme }) => theme.colors.surface};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: 12px;
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  z-index: 100;
-`;
-
-const MenuItem = styled.button<{ $variant?: 'danger' }>`
-  padding: 0.75rem 1.25rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: ${({ theme, $variant }) => ($variant === 'danger' ? theme.colors.error : theme.colors.text)};
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: ${({ theme, $variant }) => ($variant === 'danger' ? `${theme.colors.error}10` : theme.colors.background)};
   }
 `;
 
@@ -197,35 +138,23 @@ const ItemList = styled.div`
   gap: 0.75rem;
 `;
 
-const Summary = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-  margin-top: 1rem;
-`;
-
-const SummaryCard = styled.div`
-  background-color: ${({ theme }) => theme.colors.surface};
-  padding: 1.25rem;
-  border-radius: 16px;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-`;
-
-const SummaryLabel = styled.span`
+const FilterButton = styled.button<{ $active: boolean }>`
+  padding: 0.5rem 1.5rem;
+  border-radius: 100px;
   font-size: 0.8125rem;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.textSecondary};
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-`;
+  font-weight: 700;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: ${({ theme, $active }) => ($active ? theme.colors.primary : 'transparent')};
+  color: ${({ theme, $active }) => ($active ? 'white' : theme.colors.textSecondary)};
+  box-shadow: ${({ $active }) => ($active ? '0 10px 15px -3px rgba(99, 102, 241, 0.3)' : 'none')};
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
 
-const SummaryValue = styled.span`
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: ${({ theme }) => theme.colors.text};
+  &:hover {
+    color: ${({ theme, $active }) => ($active ? 'white' : theme.colors.primary)};
+    background-color: ${({ theme, $active }) => (!$active ? `${theme.colors.primary}10` : theme.colors.primary)};
+  }
 `;
 
 const EmptyState = styled.div`
@@ -246,12 +175,13 @@ const ListDetail: React.FC = () => {
   const navigate = useNavigate();
   const { items, loading: itemsLoading, addItem, updateItem, deleteItem } = useItems(id);
   const { deleteList } = useLists();
+  const themeMode = useSelector((state: RootState) => state.ui.theme);
   const [list, setList] = useState<List | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editItem, setEditItem] = useState<Item | null>(null);
   const [isEditListOpen, setIsEditListOpen] = useState(false);
-  const [isHeaderMenuOpen, setIsHeaderMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'purchased'>('all');
 
   useEffect(() => {
     if (!id) return;
@@ -271,10 +201,15 @@ const ListDetail: React.FC = () => {
     }
   }, [list]);
 
-  const filteredItems = items.filter(item => 
-    item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredItems = items.filter(item => {
+    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         item.category.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = 
+      statusFilter === 'all' ? true :
+      statusFilter === 'pending' ? item.status === 'Pending' :
+      item.status === 'Purchased';
+    return matchesSearch && matchesStatus;
+  });
 
   const totalCost = items.reduce((acc, item) => acc + (item.price || 0) * (item.quantity || 1), 0);
   const purchasedCost = items
@@ -288,78 +223,62 @@ const ListDetail: React.FC = () => {
   return (
     <Container>
       <Header>
-        <BackButton onClick={() => navigate(-1)}>
-          <ChevronLeft size={24} />
-        </BackButton>
-        <TitleSection>
-          <ListTitle>{list?.title || 'Loading...'}</ListTitle>
-          <ListMeta>
-            <Badge $color="#6366f1">{list?.type}</Badge>
-            <span>{items.length} items</span>
-            <span>•</span>
-            <span>{items.filter(i => i.status === 'Purchased').length} purchased</span>
-          </ListMeta>
-        </TitleSection>
-        <div style={{ position: 'relative' }}>
-          <IconButton onClick={() => setIsHeaderMenuOpen(!isHeaderMenuOpen)}>
-            <MoreVertical size={20} />
-          </IconButton>
-          {isHeaderMenuOpen && (
-            <Menu>
-              <MenuItem onClick={() => { setIsEditListOpen(true); setIsHeaderMenuOpen(false); }}>
-                <Edit2 size={16} />
-                Edit List
-              </MenuItem>
-              <MenuItem $variant="danger" onClick={() => {
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <PageTitle style={{ fontSize: '1.75rem' }}>{list?.title || 'Loading...'}</PageTitle>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <IconButton onClick={() => {
                 if (window.confirm('Delete this list and all its items?')) {
                   deleteList(id!);
                   navigate('/');
                 }
-              }}>
-                <Trash2 size={16} />
-                Delete List
-              </MenuItem>
-            </Menu>
-          )}
+              }} title="Delete List" style={{ backgroundColor: '#ef444410', color: '#ef4444' }}>
+                <Trash2 size={20} />
+              </IconButton>
+              <IconButton onClick={() => setIsEditListOpen(true)} title="Edit List" style={{ backgroundColor: '#6366f110', color: '#6366f1' }}>
+                <Edit2 size={20} />
+              </IconButton>
+              <IconButton onClick={() => setIsModalOpen(true)} title="Add Item" style={{ backgroundColor: '#6366f1', color: 'white', border: 'none' }}>
+                <Plus size={20} />
+              </IconButton>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8' }}>Total({items.length}): ₹{Math.round(totalCost)}</span>
+            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#10b981' }}>Purchased({items.filter(i => i.status === 'Purchased').length}): ₹{Math.round(purchasedCost)}</span>
+            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#f59e0b' }}>To Buy({items.filter(i => i.status === 'Pending').length}): ₹{Math.round(totalCost - purchasedCost)}</span>
+          </div>
         </div>
       </Header>
 
-      <Summary>
-        <SummaryCard>
-          <SummaryLabel>Total Estimated Cost</SummaryLabel>
-          <SummaryValue>${totalCost.toFixed(2)}</SummaryValue>
-        </SummaryCard>
-        <SummaryCard>
-          <SummaryLabel>Spent So Far</SummaryLabel>
-          <SummaryValue style={{ color: '#22c55e' }}>${purchasedCost.toFixed(2)}</SummaryValue>
-        </SummaryCard>
-        <SummaryCard>
-          <SummaryLabel>Remaining</SummaryLabel>
-          <SummaryValue style={{ color: '#f59e0b' }}>${(totalCost - purchasedCost).toFixed(2)}</SummaryValue>
-        </SummaryCard>
-      </Summary>
-
       <Toolbar>
         <SearchBox>
-          <IconWrapper>
-            <Search size={18} />
+          <IconWrapper style={{ opacity: 0.4 }}>
+            <Search size={14} />
           </IconWrapper>
           <SearchInput 
             placeholder="Search items..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ fontSize: '0.875rem', padding: '0.6rem 1rem 0.6rem 2.5rem' }}
           />
         </SearchBox>
-        <ActionGroup>
-          <IconButton>
-            <Filter size={18} />
-            <span>Filter</span>
-          </IconButton>
-          <PrimaryButton onClick={() => setIsModalOpen(true)}>
-            <Plus size={18} />
-            <span>Add Item</span>
-          </PrimaryButton>
-        </ActionGroup>
+
+        <div style={{ 
+          display: 'flex', 
+          gap: '0.25rem', 
+          backgroundColor: themeMode === 'light' ? '#f1f5f9' : '#1e293b', 
+          padding: '0.3rem', 
+          borderRadius: '100px',
+          border: '1px solid ' + (themeMode === 'light' ? '#e2e8f0' : '#334155'),
+          flexShrink: 0,
+          minWidth: '300px'
+        }}>
+          <FilterButton $active={statusFilter === 'all'} onClick={() => setStatusFilter('all')} style={{ flex: 1, padding: '0.5rem 1rem' }}>All</FilterButton>
+          <FilterButton $active={statusFilter === 'pending'} onClick={() => setStatusFilter('pending')} style={{ flex: 1, padding: '0.5rem 1rem' }}>To Buy</FilterButton>
+          <FilterButton $active={statusFilter === 'purchased'} onClick={() => setStatusFilter('purchased')} style={{ flex: 1, padding: '0.5rem 1rem' }}>Purchased</FilterButton>
+        </div>
       </Toolbar>
 
       {itemsLoading ? (

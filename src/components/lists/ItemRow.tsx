@@ -42,6 +42,7 @@ const Content = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  min-width: 0;
 `;
 
 const ItemName = styled.span<{ $isCompleted: boolean }>`
@@ -49,6 +50,9 @@ const ItemName = styled.span<{ $isCompleted: boolean }>`
   color: ${({ theme }) => theme.colors.text};
   text-decoration: ${({ $isCompleted }) => ($isCompleted ? 'line-through' : 'none')};
   font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const Meta = styled.div`
@@ -57,6 +61,7 @@ const Meta = styled.div`
   gap: 1rem;
   font-size: 0.75rem;
   color: ${({ theme }) => theme.colors.textSecondary};
+  flex-wrap: wrap;
 `;
 
 const MetaItem = styled.span`
@@ -83,6 +88,15 @@ const ActionButton = styled.button<{ $variant?: 'danger' | 'default' }>`
   }
 `;
 
+const MenuOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 90;
+`;
+
 const Menu = styled.div`
   position: absolute;
   right: 1.25rem;
@@ -94,7 +108,7 @@ const Menu = styled.div`
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  z-index: 10;
+  z-index: 100;
 `;
 
 const MenuItem = styled.button<{ $variant?: 'danger' }>`
@@ -124,6 +138,7 @@ const ItemRow: React.FC<Props> = ({ item, onToggle, onDelete, onEdit }) => {
 
   return (
     <div style={{ position: 'relative' }}>
+      {menuOpen && <MenuOverlay onClick={() => setMenuOpen(false)} />}
       <Row $isCompleted={item.status === 'Purchased'}>
         <Checkbox $checked={item.status === 'Purchased'} onClick={onToggle}>
           {item.status === 'Purchased' && <Check size={14} strokeWidth={3} />}
@@ -144,7 +159,7 @@ const ItemRow: React.FC<Props> = ({ item, onToggle, onDelete, onEdit }) => {
           </Meta>
         </Content>
 
-        {item.price && <Price>${(item.price * item.quantity).toFixed(2)}</Price>}
+        {item.price && <Price>₹{(item.price * item.quantity).toFixed(2)}</Price>}
 
         <div style={{ display: 'flex', gap: '0.25rem' }}>
           <ActionButton onClick={() => setMenuOpen(!menuOpen)}>

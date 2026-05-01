@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { X, Check, Package, Tag, Hash, DollarSign, AlignLeft } from 'lucide-react';
+import { X, Check, Package, Tag, Hash, IndianRupee, AlignLeft } from 'lucide-react';
 import { type Item } from '../../types';
 
 const ModalOverlay = styled.div`
@@ -238,7 +238,7 @@ const EditItemModal: React.FC<Props> = ({ isOpen, onClose, item, onUpdate }) => 
             <FormGroup>
               <Label>Price (Optional)</Label>
               <InputWrapper>
-                <IconWrapper><DollarSign size={18} /></IconWrapper>
+                <IconWrapper><IndianRupee size={18} /></IconWrapper>
                 <Input 
                   type="number"
                   step="0.01"

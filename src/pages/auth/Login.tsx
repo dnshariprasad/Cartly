@@ -164,7 +164,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <AuthLayout title="Login" subtitle="Welcome back to Cartly">
+    <AuthLayout subtitle="Welcome back to Cartly">
       <Form onSubmit={handleLogin}>
         <InputGroup>
           <Label>Email Address</Label>

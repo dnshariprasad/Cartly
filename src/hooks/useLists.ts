@@ -8,8 +8,7 @@ import {
   addDoc, 
   updateDoc, 
   deleteDoc, 
-  doc, 
-  serverTimestamp 
+  doc 
 } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import type { List } from '../types';

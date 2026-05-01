@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { User, Moon, Sun, Bell, Shield, LogOut } from 'lucide-react';
+import { User, Sun, LogOut, Shield } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '../store';
 import { toggleTheme } from '../store/slices/uiSlice';

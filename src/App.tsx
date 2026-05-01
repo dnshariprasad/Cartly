@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { auth } from './services/firebase';
 import { setUser } from './store/slices/authSlice';
 import type { RootState } from './store';
-import type { UserProfile, Item, List, ThemeType } from './types';
 
 // Pages
 import Login from './pages/auth/Login';
@@ -14,7 +13,6 @@ import Dashboard from './pages/Dashboard';
 import ListDetail from './pages/ListDetail';
 import Settings from './pages/Settings';
 import MainLayout from './components/layout/MainLayout';
-import ErrorBoundary from './components/common/ErrorBoundary';
 
 function App() {
   const dispatch = useDispatch();

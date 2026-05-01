@@ -120,7 +120,7 @@ const Register: React.FC = () => {
   };
 
   return (
-    <AuthLayout title="Register" subtitle="Start organizing with Cartly today">
+    <AuthLayout subtitle="Start organizing with Cartly today">
       <Form onSubmit={handleRegister}>
         <InputGroup>
           <Label>Full Name</Label>

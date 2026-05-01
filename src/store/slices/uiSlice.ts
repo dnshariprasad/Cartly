@@ -2,7 +2,6 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 interface UIState {
   theme: 'light' | 'dark';
-  sidebarOpen: boolean;
   isCreateModalOpen: boolean;
   isLoading: boolean;
   error: string | null;
@@ -10,7 +9,6 @@ interface UIState {
 
 const initialState: UIState = {
   theme: (localStorage.getItem('theme') as 'light' | 'dark') || 'light',
-  sidebarOpen: true,
   isCreateModalOpen: false,
   isLoading: false,
   error: null,
@@ -28,9 +26,6 @@ const uiSlice = createSlice({
       state.theme = action.payload;
       localStorage.setItem('theme', action.payload);
     },
-    toggleSidebar: (state) => {
-      state.sidebarOpen = !state.sidebarOpen;
-    },
     setCreateModalOpen: (state, action: PayloadAction<boolean>) => {
       state.isCreateModalOpen = action.payload;
     },
@@ -43,5 +38,5 @@ const uiSlice = createSlice({
   },
 });
 
-export const { toggleTheme, setTheme, toggleSidebar, setCreateModalOpen, setLoading, setError } = uiSlice.actions;
+export const { toggleTheme, setTheme, setCreateModalOpen, setLoading, setError } = uiSlice.actions;
 export default uiSlice.reducer;
