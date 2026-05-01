@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Moon, Sun, LogOut, Plus, Settings as SettingsIcon, ShoppingBag, MoreVertical } from 'lucide-react';
+import { Moon, Sun, LogOut, Plus, Settings as SettingsIcon, MoreVertical } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '../../store';
@@ -162,19 +162,7 @@ const Navbar: React.FC = () => {
       <NavInner>
         <LeftSection>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
-            <div style={{ 
-              background: 'linear-gradient(135deg, #6366f1, #a855f7)', 
-              width: '32px', 
-              height: '32px', 
-              borderRadius: '8px', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              color: 'white',
-              flexShrink: 0
-            }}>
-              <ShoppingBag size={18} fill="white" />
-            </div>
+            <img src="/favicon.png" alt="Cartly" style={{ width: '32px', height: '32px', borderRadius: '8px' }} />
             <h1 style={{ 
               fontSize: '1.4rem', 
               fontWeight: 800, 

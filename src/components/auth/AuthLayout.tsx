@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { ShoppingBag } from 'lucide-react';
 
 const AuthContainer = styled.div`
   min-height: 100vh;
@@ -67,7 +66,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, subtitle }) => {
       <AuthCard>
         <Brand>
           <LogoIcon>
-            <ShoppingBag size={32} />
+            <img src="/favicon.png" alt="Cartly" style={{ width: '32px', height: '32px', borderRadius: '8px' }} />
           </LogoIcon>
           <div>
             <LogoText>Cartly</LogoText>
