@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { 
   collection, 
   query, 
@@ -53,7 +53,7 @@ export const useLists = () => {
     return () => unsubscribe();
   }, [user]);
 
-  const createList = async (title: string, type: string, description?: string) => {
+  const createList = useCallback(async (title: string, type: string, description?: string) => {
     if (!user) return;
     try {
       await addDoc(collection(db, 'lists'), {
@@ -70,9 +70,9 @@ export const useLists = () => {
       setError(err.message);
       throw err;
     }
-  };
+  }, [user]);
 
-  const updateList = async (id: string, data: Partial<List>) => {
+  const updateList = useCallback(async (id: string, data: Partial<List>) => {
     try {
       const listRef = doc(db, 'lists', id);
       await updateDoc(listRef, data);
@@ -80,16 +80,16 @@ export const useLists = () => {
       setError(err.message);
       throw err;
     }
-  };
+  }, []);
 
-  const deleteList = async (id: string) => {
+  const deleteList = useCallback(async (id: string) => {
     try {
       await deleteDoc(doc(db, 'lists', id));
     } catch (err: any) {
       setError(err.message);
       throw err;
     }
-  };
+  }, []);
 
   return { lists, loading, error, createList, updateList, deleteList };
 };

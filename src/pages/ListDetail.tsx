@@ -11,6 +11,7 @@ import AddItemModal from '../components/lists/AddItemModal';
 import EditItemModal from '../components/lists/EditItemModal';
 import EditListModal from '../components/lists/EditListModal';
 import { type List, type Item } from '../types';
+import QuickAddSheet from '../components/lists/QuickAddSheet';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
 
@@ -170,6 +171,35 @@ const EmptyState = styled.div`
   color: ${({ theme }) => theme.colors.textSecondary};
 `;
 
+const FAB = styled.button`
+  position: fixed;
+  bottom: 2rem;
+  left: 1.5rem;
+  width: 60px;
+  height: 60px;
+  border-radius: 20px;
+  background-color: ${({ theme }) => theme.colors.primary};
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 25px -5px ${({ theme }) => `${theme.colors.primary}40`};
+  border: none;
+  cursor: pointer;
+  z-index: 1000;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &:hover {
+    transform: scale(1.1) rotate(90deg);
+    background-color: ${({ theme }) => theme.colors.secondary};
+    box-shadow: 0 15px 30px -5px ${({ theme }) => `${theme.colors.primary}60`};
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+`;
+
 const ListDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -180,6 +210,7 @@ const ListDetail: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editItem, setEditItem] = useState<Item | null>(null);
   const [isEditListOpen, setIsEditListOpen] = useState(false);
+  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'purchased'>('all');
 
@@ -315,6 +346,7 @@ const ListDetail: React.FC = () => {
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         onAdd={addItem}
+        onSwitchToEssentials={() => setIsQuickAddOpen(true)}
       />
 
       {editItem && (
@@ -333,6 +365,16 @@ const ListDetail: React.FC = () => {
           list={list}
         />
       )}
+      <QuickAddSheet 
+        isOpen={isQuickAddOpen}
+        onClose={() => setIsQuickAddOpen(false)}
+        onQuickAdd={addItem}
+        onManualEntry={() => setIsModalOpen(true)}
+      />
+
+      <FAB onClick={() => setIsModalOpen(true)} title="Add Item">
+        <Plus size={28} strokeWidth={2.5} />
+      </FAB>
     </Container>
   );
 };

@@ -1,14 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { 
   collection, 
   query, 
   orderBy, 
   onSnapshot, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
   doc, 
-  increment 
+  increment,
+  writeBatch
 } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import type { Item, ItemStatus } from '../types';
@@ -49,59 +47,71 @@ export const useItems = (listId: string | undefined) => {
     return () => unsubscribe();
   }, [listId]);
 
-  const addItem = async (item: Omit<Item, 'id' | 'createdAt'>) => {
+  const addItem = useCallback(async (item: Omit<Item, 'id' | 'createdAt'>) => {
     if (!listId) return;
     try {
-      await addDoc(collection(db, 'lists', listId, 'items'), {
+      const batch = writeBatch(db);
+      
+      const itemsCollection = collection(db, 'lists', listId, 'items');
+      const newItemRef = doc(itemsCollection);
+      
+      batch.set(newItemRef, {
         ...item,
         createdAt: Date.now()
       });
 
-      // Update list counters
       const listRef = doc(db, 'lists', listId);
-      await updateDoc(listRef, {
+      batch.update(listRef, {
         itemCount: increment(1)
       });
+
+      await batch.commit();
     } catch (err: any) {
       setError(err.message);
       throw err;
     }
-  };
+  }, [listId]);
 
-  const updateItem = async (itemId: string, data: Partial<Item>, previousStatus?: ItemStatus) => {
+  const updateItem = useCallback(async (itemId: string, data: Partial<Item>, previousStatus?: ItemStatus) => {
     if (!listId) return;
     try {
+      const batch = writeBatch(db);
       const itemRef = doc(db, 'lists', listId, 'items', itemId);
-      await updateDoc(itemRef, data);
+      batch.update(itemRef, data);
 
-      // If status changed, update completedCount in list
       if (data.status && previousStatus && data.status !== previousStatus) {
         const listRef = doc(db, 'lists', listId);
-        await updateDoc(listRef, {
+        batch.update(listRef, {
           completedCount: increment(data.status === 'Purchased' ? 1 : -1)
         });
       }
+
+      await batch.commit();
     } catch (err: any) {
       setError(err.message);
       throw err;
     }
-  };
+  }, [listId]);
 
-  const deleteItem = async (itemId: string, status: ItemStatus) => {
+  const deleteItem = useCallback(async (itemId: string, status: ItemStatus) => {
     if (!listId) return;
     try {
-      await deleteDoc(doc(db, 'lists', listId, 'items', itemId));
+      const batch = writeBatch(db);
+      const itemRef = doc(db, 'lists', listId, 'items', itemId);
+      batch.delete(itemRef);
       
       const listRef = doc(db, 'lists', listId);
-      await updateDoc(listRef, {
+      batch.update(listRef, {
         itemCount: increment(-1),
         completedCount: increment(status === 'Purchased' ? -1 : 0)
       });
+
+      await batch.commit();
     } catch (err: any) {
       setError(err.message);
       throw err;
     }
-  };
+  }, [listId]);
 
   return { items, loading, error, addItem, updateItem, deleteItem };
 };

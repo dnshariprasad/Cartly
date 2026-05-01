@@ -13,21 +13,21 @@ const Container = styled.div`
 `;
 
 const ListGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 `;
 
 const LoadingGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 `;
 
 const SkeletonCard = styled.div`
-  height: 220px;
+  height: 72px;
   background-color: ${({ theme }) => theme.colors.surface};
-  border-radius: 20px;
+  border-radius: 16px;
   border: 1px solid ${({ theme }) => theme.colors.border};
   animation: pulse 1.5s infinite ease-in-out;
 

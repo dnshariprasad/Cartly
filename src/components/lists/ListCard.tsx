@@ -1,43 +1,40 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Calendar, Home, Plane, Briefcase } from 'lucide-react';
+import { ShoppingBag, Calendar, Home, Plane, Briefcase, ChevronRight } from 'lucide-react';
 import type { List } from '../../types';
 import EditListModal from './EditListModal';
 
 const Card = styled(Link)`
   background-color: ${({ theme }) => theme.colors.surface};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: 24px;
-  padding: 1.75rem;
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
   display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  position: relative;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.2s ease;
   text-decoration: none;
 
   &:hover {
-    transform: translateY(-8px);
+    transform: translateX(4px);
     border-color: ${({ theme }) => theme.colors.primary};
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  &:active {
+    transform: scale(0.99);
   }
 `;
 
-const CardHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-`;
-
 const IconWrapper = styled.div<{ $type: string }>`
-  width: 48px;
-  height: 48px;
-  border-radius: 16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   background-color: ${({ theme, $type }) => {
     switch ($type) {
       case 'Home': return `${theme.colors.primary}15`;
@@ -58,36 +55,34 @@ const IconWrapper = styled.div<{ $type: string }>`
   }};
 `;
 
-
-const TitleSection = styled.div`
+const ContentSection = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.2rem;
+  flex: 1;
+  min-width: 0;
 `;
 
 const Title = styled.h4`
-  font-size: 1.35rem;
-  font-weight: 800;
+  font-size: 1rem;
+  font-weight: 700;
   color: ${({ theme }) => theme.colors.text};
-  letter-spacing: -0.5px;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
-
-const Footer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 1rem;
-  border-top: 1px solid ${({ theme }) => theme.colors.border};
-`;
-
-const ItemCount = styled.span`
-  font-size: 0.875rem;
-  font-weight: 600;
+const Meta = styled.span`
+  font-size: 0.8rem;
+  font-weight: 500;
   color: ${({ theme }) => theme.colors.textSecondary};
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+`;
+
+const ChevronWrapper = styled.div`
+  color: ${({ theme }) => theme.colors.textSecondary};
+  flex-shrink: 0;
+  opacity: 0.4;
 `;
 
 const ListCard: React.FC<{ list: List }> = ({ list }) => {
@@ -103,30 +98,21 @@ const ListCard: React.FC<{ list: List }> = ({ list }) => {
     }
   };
 
-
   return (
     <>
       <Card to={`/list/${list.id}`}>
-        <CardHeader>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <IconWrapper $type={list.type}>
-            {getIcon()}
-          </IconWrapper>
-        </div>
-      </CardHeader>
+        <IconWrapper $type={list.type}>
+          {getIcon()}
+        </IconWrapper>
 
-      <TitleSection>
-        <Title>{list.title}</Title>
-        <ItemCount>{list.itemCount} items • {list.completedCount} purchased</ItemCount>
-      </TitleSection>
+        <ContentSection>
+          <Title>{list.title}</Title>
+          <Meta>{list.itemCount} items • {list.completedCount} done</Meta>
+        </ContentSection>
 
-
-
-      <Footer>
-        <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-          {new Date(list.createdAt).toLocaleDateString()}
-        </span>
-      </Footer>
+        <ChevronWrapper>
+          <ChevronRight size={18} />
+        </ChevronWrapper>
       </Card>
       
       <EditListModal 
